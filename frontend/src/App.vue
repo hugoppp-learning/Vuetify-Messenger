@@ -9,9 +9,9 @@
         :color="$vuetify.breakpoint.smAndDown ? 'grey darken-1' : 'transparent'"
         size="32"
       ></v-avatar>
+      <v-container class="hidden-sm-and-down mr-15"/>
 
-      <v-container class="appbar-left-right-container hidden-sm-and-down">
-      </v-container>
+      <v-spacer/>
 
       <v-tabs
         centered
@@ -21,63 +21,30 @@
         <v-tab
           v-for="link in links"
           :key="link"
+          :to="link.to"
         >
-          {{ link }}
+          {{ link.text }}
         </v-tab>
       </v-tabs>
 
+      <v-spacer></v-spacer>
 
       <v-container
-        class="appbar-left-right-container hidden-sm-and-down overflow-hidden text-no-wrap mr-0">
-        mAmAmAmAmAmAmAmAmAmAmAmAmAmAmAmAmAmAmAmA
+        class="appbar-left-right-container hidden-sm-and-down overflow-hidden text-no-wrap ml-15 mr-0">
+        <router-link to="/profile">@username</router-link>
       </v-container>
-      <v-avatar
-        class="hidden-sm-and-down"
-        color="grey darken-1 shrink"
-        size="32"
-      ></v-avatar>
+
+      <router-link to="/profile">
+        <v-avatar
+          class="hidden-sm-and-down"
+          color="grey darken-1 shrink"
+          size="32"
+        ></v-avatar>
+      </router-link>
     </v-app-bar>
 
     <v-main class="grey lighten-3">
-      <v-container>
-        <v-row>
-          <v-col
-            cols="12"
-            sm="2"
-          >
-            <v-sheet
-              rounded="lg"
-              min-height="268"
-            >
-              <!--  -->
-            </v-sheet>
-          </v-col>
-
-          <v-col
-            cols="12"
-            sm="8"
-          >
-            <v-sheet
-              min-height="70vh"
-              rounded="lg"
-            >
-              <!--  -->
-            </v-sheet>
-          </v-col>
-
-          <v-col
-            cols="12"
-            sm="2"
-          >
-            <v-sheet
-              rounded="lg"
-              min-height="268"
-            >
-              <!--  -->
-            </v-sheet>
-          </v-col>
-        </v-row>
-      </v-container>
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
@@ -86,10 +53,22 @@
 export default {
   data: () => ({
     links: [
-      'Dashboard',
-      'Messages',
-      'Profile',
-      'Updates',
+      {
+        text: 'Home',
+        to: '/'
+      },
+      {
+        text: 'Messages',
+        to: ''
+      },
+      {
+        text: 'Profile',
+        to: '/profile'
+      },
+      {
+        text: 'About',
+        to: '/about'
+      }
     ],
   }),
 }
@@ -98,7 +77,10 @@ export default {
 <style>
 .appbar-left-right-container {
   text-align: right;
-  max-width: 250px;
   text-overflow: ellipsis
+}
+
+a {
+  text-decoration: none;
 }
 </style>
