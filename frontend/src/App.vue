@@ -20,7 +20,7 @@
       >
         <v-tab
           v-for="link in links"
-          :key="link"
+          :key="link.to"
           :to="link.to"
         >
           {{ link.text }}
