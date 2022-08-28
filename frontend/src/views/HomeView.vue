@@ -2,6 +2,7 @@
 
   <v-container style="max-width: 1450px">
     <v-row>
+
       <v-col
         class="left_colum"
         cols="12"
@@ -26,71 +27,17 @@
           min-height="70vh"
           rounded="lg"
         >
-          <!--  -->
-
           <v-list>
-            <v-card class="new_post_card ma-5 pa-3">
-              <div class="d-flex">
-                <div class="profile_pic_colum pr-2">
-                  <v-avatar size="48" color="grey">
-                  </v-avatar>
-                </div>
-                <v-form ref="newPostForm" class="d-inline-block flex-grow-1">
-                  <v-textarea v-model="newPost" auto-grow rows="1" flat solo hide-details
-                              label="What's up?"></v-textarea>
-                </v-form>
-                <v-btn @click="createPost()">Post</v-btn>
-              </div>
-            </v-card>
-
-            <v-card v-for="post in posts" :key="post.id" class="ma-5 pa-3">
-
-              <div class="d-flex">
-
-                <div class="profile_pic_colum pr-2">
-                  <v-avatar size="48">
-                    <img :src="post.profilePicture" alt="">
-                  </v-avatar>
-                </div>
-
-                <div class="post_colum mpt-0 px-1">
-                  @<span class="font-weight-bold">{{ post.name }}</span>
-
-                  <div class="pl-0 py-1">{{ post.message }}</div>
-
-
-                  <div class="action_icon_container">
-                    <v-icon @click="toggleLike(post)" class="mr-2">
-                      {{ post.liked ? 'mdi-heart' : 'mdi-heart-outline' }}
-                    </v-icon>
-                    <span>{{ post.likes }}</span>
-
-                    <v-spacer/>
-
-                    <v-hover v-slot="{hover}" close-delay="100" open-delay="200">
-                      <v-icon class="mr-2">
-                        {{ hover ? 'mdi-delete' : 'mdi-delete-outline' }}
-                      </v-icon>
-                    </v-hover>
-
-                    <v-spacer/>
-
-                    <v-icon class="mr-2">
-                      mdi-share
-                    </v-icon>
-
-                  </div>
-
-
-                </div>
-              </div>
-            </v-card>
-
-
+            <CreatePostForm @newPostCreated="m => addNewPost(m)"/>
+            <Post v-for="post in posts" :key="post.id"
+                  :likes="post.likes"
+                  :liked="post.liked"
+                  :message="post.message"
+                  :profile-picture="post.profilePicture"
+                  :user-name="post.name"
+            >
+            </Post>
           </v-list>
-
-
-          <!--  -->
         </v-sheet>
       </v-col>
 
@@ -108,6 +55,7 @@
           </v-sheet>
         </div>
       </v-col>
+
     </v-row>
   </v-container>
 
@@ -125,35 +73,32 @@
 
 <script>
 import HelloWorld from '../components/HelloWorld'
+import Post from '@/components/Post'
+import CreatePostForm from '@/components/CreatePostForm'
 
 export default {
   name: 'Home',
 
   components: {
+    CreatePostForm,
+    Post,
     HelloWorld
   },
-  methods: {
-    createPost () {
 
+  methods: {
+
+    addNewPost (message) {
       let newPost = {
         id: Math.max(...this.posts.map(p => p.id)) + 1,
         name: 'hugop',
         profilePicture: 'https://i.pravatar.cc/300',
-        message: this.newPost,
+        message: message,
         likes: 0,
         liked: true
       }
       this.posts.unshift(newPost)
       this.$refs.newPostForm.reset()
       console.log(newPost)
-    },
-    toggleLike (post) {
-      if (post.liked) {
-        post.likes--
-      } else {
-        post.likes++
-      }
-      post.liked = !post.liked
     }
   },
 
