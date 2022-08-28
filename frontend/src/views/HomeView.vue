@@ -1,16 +1,20 @@
 <template>
+
   <v-container>
     <v-row>
       <v-col
         cols="12"
         sm="2"
       >
-        <v-sheet
-          rounded="lg"
-          min-height="268"
-        >
-          <!--  -->
-        </v-sheet>
+
+        <div style="position: sticky; top: 76px">
+          <v-sheet
+            rounded="lg"
+            min-height="268"
+          >
+            <!--  -->
+          </v-sheet>
+        </div>
       </v-col>
 
       <v-col
@@ -60,12 +64,14 @@
         cols="12"
         sm="2"
       >
-        <v-sheet
-          rounded="lg"
-          min-height="268"
-        >
-          <!--  -->
-        </v-sheet>
+        <div style="position: sticky; top: 76px">
+          <v-sheet
+            rounded="lg"
+            min-height="268"
+          >
+            <!--  -->
+          </v-sheet>
+        </div>
       </v-col>
     </v-row>
   </v-container>
