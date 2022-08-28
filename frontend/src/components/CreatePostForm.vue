@@ -3,6 +3,7 @@
     <div class="d-flex">
       <div class="profile_pic_colum pr-2">
         <v-avatar size="48" color="grey">
+          <img :src="loggedInUser.profilePicture" alt="">
         </v-avatar>
       </div>
       <v-form ref="newPostForm" class="d-inline-block flex-grow-1">
@@ -16,10 +17,18 @@
 
 <script>
 import PostCard from '@/components/PostCard'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'CreatePostForm',
   components: { PostCard },
+
+  computed: {
+    ...mapGetters({
+      loggedInUser: 'getLoggedInUser'
+    }),
+  },
+
   emits: ['newPostCreated'],
   data: () => ({
     newPostMessage: ''

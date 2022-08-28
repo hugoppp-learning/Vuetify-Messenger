@@ -31,7 +31,7 @@
 
       <v-container
         class="appbar-left-right-container hidden-sm-and-down overflow-hidden text-no-wrap ml-15 mr-0">
-        <router-link to="/profile">@username</router-link>
+        <router-link to="/profile">@{{ loggedInUser.username }}</router-link>
       </v-container>
 
       <router-link to="/profile">
@@ -39,7 +39,10 @@
           class="hidden-sm-and-down"
           color="grey darken-1 shrink"
           size="32"
-        ></v-avatar>
+        >
+          <img :src="loggedInUser.profilePicture" alt="">
+
+        </v-avatar>
       </router-link>
     </v-app-bar>
 
@@ -50,7 +53,16 @@
 </template>
 
 <script>
+
+import { mapGetters } from 'vuex'
+
 export default {
+  computed: {
+    ...mapGetters({
+      loggedInUser: 'getLoggedInUser'
+    })
+  },
+
   data: () => ({
     links: [
       {
