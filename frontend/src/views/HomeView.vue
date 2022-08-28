@@ -29,7 +29,21 @@
           <!--  -->
 
           <v-list>
-            <v-card v-for="post in posts" class="ma-5 pa-3">
+            <v-card class="new_post_card ma-5 pa-3">
+              <div class="d-flex">
+                <div class="profile_pic_colum pr-2">
+                  <v-avatar size="48" color="grey">
+                  </v-avatar>
+                </div>
+                <v-form ref="newPostForm" class="d-inline-block flex-grow-1">
+                  <v-textarea v-model="newPost" auto-grow rows="1" flat solo hide-details
+                              label="What's up?"></v-textarea>
+                </v-form>
+                <v-btn @click="createPost()">Post</v-btn>
+              </div>
+            </v-card>
+
+            <v-card v-for="post in posts" :key="post.id" class="ma-5 pa-3">
 
               <div class="d-flex">
 
@@ -53,7 +67,7 @@
 
                     <v-spacer/>
 
-                    <v-hover  v-slot="{hover}" close-delay="100" open-delay="200">
+                    <v-hover v-slot="{hover}" close-delay="100" open-delay="200">
                       <v-icon class="mr-2">
                         {{ hover ? 'mdi-delete' : 'mdi-delete-outline' }}
                       </v-icon>
@@ -100,10 +114,11 @@
 </template>
 
 <style>
-.action_icon_container{
+.action_icon_container {
   display: flex;
 }
-.post_colum{
+
+.post_colum {
   width: 100%;
 }
 </style>
@@ -118,6 +133,20 @@ export default {
     HelloWorld
   },
   methods: {
+    createPost () {
+
+      let newPost = {
+        id: Math.max(...this.posts.map(p => p.id)) + 1,
+        name: 'hugop',
+        profilePicture: 'https://i.pravatar.cc/300',
+        message: this.newPost,
+        likes: 0,
+        liked: true
+      }
+      this.posts.unshift(newPost)
+      this.$refs.newPostForm.reset()
+      console.log(newPost)
+    },
     toggleLike (post) {
       if (post.liked) {
         post.likes--
@@ -129,6 +158,7 @@ export default {
   },
 
   data: () => ({
+    newPost: '',
     posts: [
       {
         id: 1,
