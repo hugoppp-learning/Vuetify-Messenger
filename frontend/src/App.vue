@@ -54,16 +54,10 @@
 
 <script>
 
-import { mapGetters } from 'vuex'
 
 export default {
-  computed: {
-    ...mapGetters({
-      loggedInUser: 'getLoggedInUser'
-    })
-  },
-
   data: () => ({
+    loggedInUser: {profilePicture: ""},
     links: [
       {
         text: 'Home',

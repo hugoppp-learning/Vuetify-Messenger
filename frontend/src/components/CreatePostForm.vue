@@ -17,21 +17,18 @@
 
 <script>
 import PostCard from '@/components/PostCard'
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'CreatePostForm',
   components: { PostCard },
 
   computed: {
-    ...mapGetters({
-      loggedInUser: 'getLoggedInUser'
-    }),
   },
 
   emits: ['newPostCreated'],
   data: () => ({
-    newPostMessage: ''
+    newPostMessage: '',
+    loggedInUser:{profilePicture: ''}
   }),
 
   methods: {
