@@ -4,19 +4,21 @@ using static BCrypt.Net.BCrypt;
 
 namespace backend.Services;
 
-public class SignupService
+public class AuthService
 {
-    private readonly ILogger<SignupService> _logger;
+    private readonly ILogger<AuthService> _logger;
     private readonly UserRepo _users;
+    private readonly ApplicationJwtConfig _jwtConfig;
 
 
-    public SignupService(ILogger<SignupService> logger, UserRepo users)
+    public AuthService(ILogger<AuthService> logger, UserRepo users, ApplicationJwtConfig jwtConfig)
     {
         _logger = logger;
         _users = users;
+        _jwtConfig = jwtConfig;
     }
 
-    public void Signup(SignupDto signupDto, string emailVerificationToken)
+    public string Signup(SignupDto signupDto)
     {
         _users.Add(new ApplicationUser
         {
@@ -26,7 +28,7 @@ public class SignupService
             Roles = new List<Role>()
         });
         //todo send email
-        _logger.LogInformation("This is send per email: '{EmailVerificationToken}'", emailVerificationToken);
+        return _jwtConfig.GenerateEmailVerificationToken(signupDto);
     }
 
 
@@ -42,14 +44,18 @@ public class SignupService
         return null;
     }
 
-    public ApplicationUser? ValidateEmail((string Username, string Email) token)
+    public bool ValidateEmail(string token)
     {
-        var applicationUser = _users.FindByUsername(token.Username);
+        var validTokenData = _jwtConfig.ValidateEmailToken(token);
+        if (validTokenData is null)
+            return false;
+        
+        var applicationUser = _users.FindByUsername(validTokenData.Value.Username);
 
         if (applicationUser is null || applicationUser.Roles.Contains(Role.Verified))
-            return null;
+            return false;
         
         applicationUser.Roles.Add(Role.Verified);
-        return applicationUser;
+        return true;
     }
 }

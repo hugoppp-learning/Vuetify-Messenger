@@ -1,7 +1,6 @@
 using backend.Repository;
-using backend.Services;
 
-namespace backend;
+namespace backend.Services;
 
 public static class ApplicationServices
 {
@@ -9,7 +8,8 @@ public static class ApplicationServices
     {
         return serviceCollection
             .AddSingleton<UserRepo>()
-            .AddSingleton<SignupService>();
+            .AddSingleton<AuthService>()
+            .AddSingleton<DevelopmentDataService>();
     }
     
 }

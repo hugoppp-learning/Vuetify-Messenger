@@ -18,22 +18,24 @@ public record AuthRequestDto([Required] string Username, [Required] string Passw
 [Route("")]
 public class AuthController : ControllerBase
 {
-    private readonly SignupService _signupService;
+    private readonly AuthService _authService;
     private readonly UserRepo _users;
     private readonly ApplicationJwtConfig _jwtConfig;
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(SignupService signupService, UserRepo users, ApplicationJwtConfig jwtConfig)
+    public AuthController(AuthService authService, UserRepo users, ApplicationJwtConfig jwtConfig, ILogger<AuthController> logger)
     {
-        _signupService = signupService;
+        _authService = authService;
         _users = users;
         _jwtConfig = jwtConfig;
+        _logger = logger;
     }
 
     [AllowAnonymous]
     [HttpPost("Auth")]
     public ActionResult<AuthResponse> Auth([FromBody] AuthRequestDto login)
     {
-        var user = _signupService.Authenticate(login);
+        var user = _authService.Authenticate(login);
         if (user is null)
             return Unauthorized();
 
@@ -62,8 +64,8 @@ public class AuthController : ControllerBase
         if (_users.FindByEmail(signup.Email) is not null)
             return Ok(new SignupResponse(SignupResponseCode.EmailTaken));
 
-        string token = _jwtConfig.GenerateEmailVerificationToken(signup);
-        _signupService.Signup(signup, token);
+        string emailVerificationToken = _authService.Signup(signup);
+        _logger.LogInformation("This is send per email: '{EmailVerificationToken}'", emailVerificationToken);
 
         return Ok(new SignupResponse(SignupResponseCode.Ok));
     }
@@ -81,16 +83,10 @@ public class AuthController : ControllerBase
     [HttpPost("verifyEmail")]
     public ActionResult<VerifyEmailResponse> VerifyEmail(string token)
     {
-        var validTokenData = _jwtConfig.ValidateEmailToken(token);
-        if (validTokenData is null)
+        if (_authService.ValidateEmail(token))
+            return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Ok));
+        else
             return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Invalid));
-        
-        var applicationUser = _signupService.ValidateEmail(validTokenData.Value);
-
-        if (applicationUser is null)
-            return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Invalid));
-
-        return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Ok));
     }
 
     public record VerifyEmailResponse(VerifyEmailResponseCode Code);

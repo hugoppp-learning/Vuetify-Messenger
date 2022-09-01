@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using backend;
+using backend.Services;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -48,6 +49,7 @@ if (app.Environment.IsDevelopment())
         .AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader());
+    app.Services.GetRequiredService<DevelopmentDataService>().SeedData();
 }
 
 
