@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("Auth")]
+    [HttpPost("auth")]
     public ActionResult<AuthResponse> Auth([FromBody] AuthRequestDto login)
     {
         var user = _authService.Authenticate(login);
@@ -56,7 +56,7 @@ public class AuthController : ControllerBase
 
 
     [AllowAnonymous]
-    [HttpPost("Register")]
+    [HttpPost("register")]
     public ActionResult<SignupResponse> Signup([FromBody] SignupDto signup)
     {
         if (_users.FindByUsername(signup.Username) is not null)
@@ -80,7 +80,7 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("verifyEmail")]
+    [HttpPost("VerifyEmail")]
     public ActionResult<VerifyEmailResponse> VerifyEmail(string token)
     {
         if (_authService.ValidateEmail(token))
