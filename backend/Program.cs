@@ -15,7 +15,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddApplicationSwaggerConfig();
 
-// Add services to the container.
+if (builder.Environment.IsDevelopment())
+    builder.Services.AddSingleton<IEmailSendingService, LoggerEmailService>();
+//else todo add real logger email service
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllers()

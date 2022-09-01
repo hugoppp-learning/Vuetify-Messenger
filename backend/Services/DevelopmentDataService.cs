@@ -1,25 +1,33 @@
+using System.Diagnostics;
 using backend.Controllers;
+using backend.Repository;
+using backend.Services.Security;
 
 namespace backend.Services;
 
 public class DevelopmentDataService
 {
     private readonly AuthService _authService;
+    private readonly MockEmailSendingService _mockEmailSendingService;
 
-    public DevelopmentDataService(AuthService authService)
+    public DevelopmentDataService(UserRepo userRepo, ILogger<AuthService> authServiceLogger,
+        JwtEmailVerificationService jwtEmailVerificationService)
     {
-        _authService = authService;
+        _mockEmailSendingService = new MockEmailSendingService();
+        _authService = new AuthService(authServiceLogger, userRepo, jwtEmailVerificationService,
+            _mockEmailSendingService);
     }
 
     public void SeedData()
     {
-        CreateTestAccount();
+        CreateTestAccount().Wait();
     }
 
-    private void CreateTestAccount()
+    private async Task CreateTestAccount()
     {
-        var token = _authService.Signup(new SignupDto("a@b.c", "string", "string"));
-        if (!_authService.VerifyEmail(token))
+        await _authService.SignupAsync(new SignupDto("a@b.c", "string", "string"));
+        Debug.Assert(_mockEmailSendingService.EmailVerificationToken is not null);
+        if (!_authService.VerifyEmail(_mockEmailSendingService.EmailVerificationToken))
             throw new Exception("Could not create test account");
     }
 }

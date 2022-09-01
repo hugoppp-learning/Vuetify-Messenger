@@ -1,35 +1,38 @@
 using backend.Controllers;
 using backend.Repository;
-using backend.Services.Security;
 using static BCrypt.Net.BCrypt;
 
-namespace backend.Services;
+namespace backend.Services.Security;
 
 public class AuthService
 {
     private readonly ILogger<AuthService> _logger;
     private readonly UserRepo _users;
     private readonly JwtEmailVerificationService _jwtEmailVerification;
+    private readonly IEmailSendingService _emailSendingService;
 
 
-    public AuthService(ILogger<AuthService> logger, UserRepo users, JwtEmailVerificationService jwtEmailVerification)
+    public AuthService(ILogger<AuthService> logger, UserRepo users, JwtEmailVerificationService jwtEmailVerification,
+        IEmailSendingService emailSendingService)
     {
         _logger = logger;
         _users = users;
         _jwtEmailVerification = jwtEmailVerification;
+        _emailSendingService = emailSendingService;
     }
 
-    public string Signup(SignupDto signupDto)
+    public async Task SignupAsync(SignupDto signupDto)
     {
-        _users.Add(new ApplicationUser
+        var applicationUser = new ApplicationUser
         {
             Email = signupDto.Email,
             PasswordHash = HashPassword(signupDto.Password),
             Username = signupDto.Username,
             Roles = new List<Role>()
-        });
-        //todo send email
-        return _jwtEmailVerification.GenerateEmailVerificationToken(signupDto);
+        };
+        _users.Add(applicationUser);
+        var emailVerificationToken = _jwtEmailVerification.GenerateEmailVerificationToken(signupDto);
+        await _emailSendingService.SendEmailVerification(applicationUser, emailVerificationToken);
     }
 
 
@@ -50,12 +53,12 @@ public class AuthService
         var email = _jwtEmailVerification.ValidateEmailToken(token);
         if (email is null)
             return false;
-        
+
         var applicationUser = _users.FindByEmail(email);
 
         if (applicationUser is null || applicationUser.Roles.Contains(Role.Verified))
             return false;
-        
+
         applicationUser.Roles.Add(Role.Verified);
         return true;
     }

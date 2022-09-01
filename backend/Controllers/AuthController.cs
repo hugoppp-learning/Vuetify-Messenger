@@ -66,9 +66,7 @@ public class AuthController : ControllerBase
         if (_users.FindByEmail(signup.Email) is not null)
             return Ok(new SignupResponse(SignupResponseCode.EmailTaken));
 
-        string emailVerificationToken = _authService.Signup(signup);
-        _logger.LogInformation("This is send per email: '{EmailVerificationToken}'", emailVerificationToken);
-
+        _authService.SignupAsync(signup);
         return Ok(new SignupResponse(SignupResponseCode.Ok));
     }
 
