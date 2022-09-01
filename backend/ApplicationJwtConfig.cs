@@ -26,10 +26,6 @@ public class ApplicationJwtConfig
         SecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
         TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
             ValidIssuer = _config["Jwt:Issuer"],
             ValidAudience = _config["Jwt:Audience"],
             IssuerSigningKey = SecurityKey,
