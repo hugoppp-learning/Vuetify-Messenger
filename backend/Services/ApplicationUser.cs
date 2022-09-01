@@ -6,6 +6,7 @@ public class ApplicationUser
     public string PasswordHash { get; set; }
     public List<Role> Roles { get; set; }
     public string Username { get; set; }
+    public string ProfilePicture { get; set; }
 }
 
 public enum Role
