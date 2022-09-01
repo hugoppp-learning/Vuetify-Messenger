@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using System.Security.Claims;
 using backend.Services;
+using backend.Services.Security;
 
 namespace backend.Repository;
 
@@ -24,7 +26,8 @@ public class UserRepo
     
     public ApplicationUser? FromHttpContext(HttpContext httpContext)
     {
-        var email = httpContext.User.FindFirstValue(ApplicationJwtConfig.EmailClaim);
+        var email = httpContext.User.GetEmail();
+        Debug.Assert(email is not null);
         return FindByEmail(email);
     }
 }

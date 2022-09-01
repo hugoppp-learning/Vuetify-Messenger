@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using backend.Repository;
 using backend.Services;
+using backend.Services.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,15 +21,16 @@ public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
     private readonly UserRepo _users;
-    private readonly ApplicationJwtConfig _jwtConfig;
+    private readonly JwtLoginTokenService _jwtLogin;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(AuthService authService, UserRepo users, ApplicationJwtConfig jwtConfig, ILogger<AuthController> logger)
+    public AuthController(AuthService authService, UserRepo users,
+        ILogger<AuthController> logger, JwtLoginTokenService jwtLogin)
     {
         _authService = authService;
         _users = users;
-        _jwtConfig = jwtConfig;
         _logger = logger;
+        _jwtLogin = jwtLogin;
     }
 
     [AllowAnonymous]
@@ -42,7 +44,7 @@ public class AuthController : ControllerBase
         if (!user.Roles.Contains(Role.Verified))
             return Ok(new AuthResponse(AuthResponseCode.NotVerified));
 
-        string token = _jwtConfig.GenerateSignInToken(user);
+        string token = _jwtLogin.GenerateSignInToken(user);
         return Ok(new AuthResponse(AuthResponseCode.Ok, token));
     }
 
@@ -83,7 +85,7 @@ public class AuthController : ControllerBase
     [HttpPost("VerifyEmail")]
     public ActionResult<VerifyEmailResponse> VerifyEmail(string token)
     {
-        if (_authService.ValidateEmail(token))
+        if (_authService.VerifyEmail(token))
             return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Ok));
         else
             return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Invalid));

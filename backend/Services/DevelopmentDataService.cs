@@ -19,7 +19,7 @@ public class DevelopmentDataService
     private void CreateTestAccount()
     {
         var token = _authService.Signup(new SignupDto("a@b.c", "string", "string"));
-        if (!_authService.ValidateEmail(token))
+        if (!_authService.VerifyEmail(token))
             throw new Exception("Could not create test account");
     }
 }

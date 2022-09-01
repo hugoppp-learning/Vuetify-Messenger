@@ -1,5 +1,6 @@
 using backend.Controllers;
 using backend.Repository;
+using backend.Services.Security;
 using static BCrypt.Net.BCrypt;
 
 namespace backend.Services;
@@ -8,14 +9,14 @@ public class AuthService
 {
     private readonly ILogger<AuthService> _logger;
     private readonly UserRepo _users;
-    private readonly ApplicationJwtConfig _jwtConfig;
+    private readonly JwtEmailVerificationService _jwtEmailVerification;
 
 
-    public AuthService(ILogger<AuthService> logger, UserRepo users, ApplicationJwtConfig jwtConfig)
+    public AuthService(ILogger<AuthService> logger, UserRepo users, JwtEmailVerificationService jwtEmailVerification)
     {
         _logger = logger;
         _users = users;
-        _jwtConfig = jwtConfig;
+        _jwtEmailVerification = jwtEmailVerification;
     }
 
     public string Signup(SignupDto signupDto)
@@ -28,7 +29,7 @@ public class AuthService
             Roles = new List<Role>()
         });
         //todo send email
-        return _jwtConfig.GenerateEmailVerificationToken(signupDto);
+        return _jwtEmailVerification.GenerateEmailVerificationToken(signupDto);
     }
 
 
@@ -44,13 +45,13 @@ public class AuthService
         return null;
     }
 
-    public bool ValidateEmail(string token)
+    public bool VerifyEmail(string token)
     {
-        var validTokenData = _jwtConfig.ValidateEmailToken(token);
-        if (validTokenData is null)
+        var email = _jwtEmailVerification.ValidateEmailToken(token);
+        if (email is null)
             return false;
         
-        var applicationUser = _users.FindByUsername(validTokenData.Value.Username);
+        var applicationUser = _users.FindByEmail(email);
 
         if (applicationUser is null || applicationUser.Roles.Contains(Role.Verified))
             return false;

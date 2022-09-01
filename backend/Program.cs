@@ -1,28 +1,19 @@
 using System.Text.Json.Serialization;
-using backend;
 using backend.Services;
-using Microsoft.OpenApi.Models;
+using backend.Services.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-ApplicationJwtConfig jwtConfig = new ApplicationJwtConfig(builder.Configuration);
-
+var jwtLoginTokenService = new JwtLoginTokenService(builder.Configuration);
+builder.Services.AddSingleton(jwtLoginTokenService);
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options => options.TokenValidationParameters = jwtConfig.TokenValidationParameters);
+}).AddJwtBearer(options => { options.TokenValidationParameters = jwtLoginTokenService.TokenValidationParameters; });
 
-builder.Services.AddSwaggerGen(setup =>
-{
-    setup.AddSecurityDefinition(jwtConfig.OpenApiSecurityScheme.Reference.Id, jwtConfig.OpenApiSecurityScheme);
-    setup.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        { jwtConfig.OpenApiSecurityScheme, Array.Empty<string>() }
-    });
-});
-builder.Services.AddSingleton(jwtConfig);
+builder.Services.AddApplicationSwaggerConfig();
 
 // Add services to the container.
 
@@ -52,20 +43,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
-app.Use(async (context, next) =>
-{
-    if (context.User.Claims.Any(x => x.Type == ApplicationJwtConfig.IsEmailVerificationToken))
-    {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        await context.Response.WriteAsync("E-Mail token can't be used to log in");
-    }
-
-    await next.Invoke();
-});
-
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
-
