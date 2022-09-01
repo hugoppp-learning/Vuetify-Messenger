@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using backend.Model;
 using backend.Repository;
-using backend.Services;
 using backend.Services.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

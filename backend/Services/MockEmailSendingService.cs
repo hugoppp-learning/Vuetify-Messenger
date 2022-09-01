@@ -1,3 +1,5 @@
+using backend.Model;
+
 namespace backend.Services;
 
 public class MockEmailSendingService : IEmailSendingService

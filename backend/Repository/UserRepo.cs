@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Claims;
+using backend.Model;
 using backend.Services;
 using backend.Services.Security;
 

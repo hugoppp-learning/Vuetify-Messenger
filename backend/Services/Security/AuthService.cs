@@ -1,4 +1,5 @@
 using backend.Controllers;
+using backend.Model;
 using backend.Repository;
 using static BCrypt.Net.BCrypt;
 
