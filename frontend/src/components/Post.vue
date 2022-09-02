@@ -9,7 +9,7 @@
       </div>
 
       <div class="post_colum mpt-0 px-1">
-        @<span class="font-weight-bold">{{ userName }}</span>
+        @<span class="font-weight-bold">{{ username }}</span>
 
         <div class="pl-0 py-1">{{ message }}</div>
 
@@ -57,7 +57,7 @@ export default {
   props: [
     'liked',
     'profilePicture',
-    'userName',
+    'username',
     'message',
     'likes',
   ],

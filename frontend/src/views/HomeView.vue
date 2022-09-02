@@ -34,7 +34,7 @@
                   :liked="post.liked"
                   :message="post.message"
                   :profile-picture="post.profilePicture"
-                  :user-name="post.name"
+                  :username="post.username"
             >
             </Post>
           </v-list>
