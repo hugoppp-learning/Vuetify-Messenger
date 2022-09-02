@@ -1,63 +1,75 @@
 <template>
   <v-app id="inspire">
-    <v-app-bar
-      app
-      color="white"
-      flat
-    >
-      <v-avatar
-        :color="$vuetify.breakpoint.smAndDown ? 'grey darken-1' : 'transparent'"
-        size="32"
-      ></v-avatar>
-      <v-container class="hidden-sm-and-down mr-15"/>
-
-      <v-spacer/>
-
-      <v-tabs
-        centered
-        class="ml-n9"
-        color="grey darken-1"
+    <template v-if="!$route.path.includes('login')">
+      <v-app-bar
+        app
+        color="white"
+        flat
       >
-        <v-tab
-          v-for="link in links"
-          :key="link.to"
-          :to="link.to"
-        >
-          {{ link.text }}
-        </v-tab>
-      </v-tabs>
-
-      <v-spacer></v-spacer>
-
-      <v-container
-        class="appbar-left-right-container hidden-sm-and-down overflow-hidden text-no-wrap ml-15 mr-0">
-        <router-link to="/profile">@{{ loggedInUser.username }}</router-link>
-      </v-container>
-
-      <router-link to="/profile">
         <v-avatar
-          class="hidden-sm-and-down"
-          color="grey darken-1 shrink"
+          :color="$vuetify.breakpoint.smAndDown ? 'grey darken-1' : 'transparent'"
           size="32"
+        ></v-avatar>
+        <v-container class="hidden-sm-and-down mr-15"/>
+
+        <v-spacer/>
+
+        <v-tabs
+          centered
+          class="ml-n9"
+          color="grey darken-1"
         >
-          <img :src="loggedInUser.profilePicture" alt="">
+          <v-tab
+            v-for="link in links"
+            :key="link.to"
+            :to="link.to"
+          >
+            {{ link.text }}
+          </v-tab>
+        </v-tabs>
 
-        </v-avatar>
-      </router-link>
-    </v-app-bar>
+        <v-spacer></v-spacer>
 
-    <v-main class="grey lighten-3">
+        <v-container
+          class="appbar-left-right-container hidden-sm-and-down overflow-hidden text-no-wrap ml-15 mr-0">
+          <router-link to="/profile">@{{ authStore.currentUser.username }}</router-link>
+        </v-container>
+
+        <router-link to="/profile">
+          <v-avatar
+            class="hidden-sm-and-down"
+            color="grey darken-1 shrink"
+            size="32"
+          >
+            <img :src="loggedInUser.profilePicture" alt="">
+
+          </v-avatar>
+        </router-link>
+      </v-app-bar>
+
+      <v-main class="grey lighten-3">
+        <router-view></router-view>
+      </v-main>
+    </template>
+    <template v-else>
       <router-view></router-view>
-    </v-main>
+    </template>
   </v-app>
 </template>
 
 <script>
 
 
+import { useAuthStore } from '@/store/authStore'
+
 export default {
+  setup () {
+    return {
+      authStore: useAuthStore()
+    }
+  },
   data: () => ({
-    loggedInUser: {profilePicture: ""},
+    loggedInUser: { profilePicture: '' },
     links: [
       {
         text: 'Home',

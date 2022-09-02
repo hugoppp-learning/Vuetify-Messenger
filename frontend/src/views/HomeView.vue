@@ -29,7 +29,7 @@
         >
           <v-list>
             <CreatePostForm @newPostCreated="m => addNewPost(m)"/>
-            <Post v-for="post in posts" :key="post.id"
+            <Post v-for="post in postStore.posts" :key="post.id"
                   :likes="post.likes"
                   :liked="post.liked"
                   :message="post.message"
@@ -75,14 +75,26 @@
 import HelloWorld from '../components/HelloWorld'
 import Post from '@/components/Post'
 import CreatePostForm from '@/components/CreatePostForm'
+import { usePostStore } from '@/store/postStore'
+import { useAuthStore } from '@/store/authStore'
 
 export default {
   name: 'Home',
-
   components: {
     CreatePostForm,
     Post,
     HelloWorld
+  },
+
+  setup () {
+    return {
+      postStore: usePostStore(),
+      authStore: useAuthStore()
+    }
+  },
+
+  async mounted () {
+    await this.postStore.fetchPosts()
   },
 
   methods: {
@@ -104,59 +116,6 @@ export default {
 
   data: () => ({
     newPost: '',
-    posts: [
-      {
-        id: 1,
-        name: 'hugop',
-        profilePicture: 'https://i.pravatar.cc/300',
-        message: 'This is the first post on this site, Yay!! :)',
-        likes: 12,
-        liked: true
-      },
-      {
-
-        id: 2,
-        name: 'hugop',
-        profilePicture: 'https://i.pravatar.cc/300',
-        message: 'This is the second post on this site',
-        likes: 1
-      },
-      {
-        id: 3,
-        name: 'hugop',
-        profilePicture: 'https://i.pravatar.cc/300',
-        message: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum`,
-        likes: 0
-      },
-      {
-        id: 4,
-        name: 'hugop',
-        profilePicture: 'https://i.pravatar.cc/300',
-        message: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum`,
-        likes: 0
-      },
-      {
-        id: 5,
-        name: 'hugop',
-        profilePicture: 'https://i.pravatar.cc/300',
-        message: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum`,
-        likes: 0
-      },
-      {
-        id: 6,
-        name: 'hugop',
-        profilePicture: 'https://i.pravatar.cc/300',
-        message: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum`,
-        likes: 0
-      },
-      {
-        id: 7,
-        name: 'hugop',
-        profilePicture: 'https://i.pravatar.cc/300',
-        message: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum`,
-        likes: 0
-      },
-    ]
   }),
 }
 </script>
