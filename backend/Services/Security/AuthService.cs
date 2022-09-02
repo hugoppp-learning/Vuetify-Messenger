@@ -29,7 +29,7 @@ public class AuthService
             Email = signupDto.Email,
             PasswordHash = HashPassword(signupDto.Password),
             Username = signupDto.Username,
-            Roles = new List<Role>()
+            Roles = new List<Role>(),
         };
         _users.Add(applicationUser);
         var emailVerificationToken = _jwtEmailVerification.GenerateEmailVerificationToken(signupDto);

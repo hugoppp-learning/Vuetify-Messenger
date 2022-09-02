@@ -1,7 +1,5 @@
 using System.Diagnostics;
-using System.Security.Claims;
 using backend.Model;
-using backend.Services;
 using backend.Services.Security;
 
 namespace backend.Repository;
@@ -12,23 +10,32 @@ public class UserRepo
 
     public void Add(ApplicationUser applicationUser)
     {
+        applicationUser.Id = _userByEmail.Values.NextId();
         _userByEmail[applicationUser.Email] = applicationUser;
     }
 
     public ApplicationUser? FindByUsername(string username)
     {
-         return _userByEmail.Values.FirstOrDefault(u => u.Username == username);
+        return _userByEmail.Values.FirstOrDefault(u => u.Username == username);
     }
 
     public ApplicationUser? FindByEmail(string email)
     {
         return _userByEmail.GetValueOrDefault(email);
     }
-    
-    public ApplicationUser? FromHttpContext(HttpContext httpContext)
+
+    public ApplicationUser? FromHttpContextOrNull(HttpContext httpContext)
     {
         var email = httpContext.User.GetEmail();
         Debug.Assert(email is not null);
         return FindByEmail(email);
+    }
+
+    public ApplicationUser FromHttpContext(HttpContext httpContext)
+    {
+        var userOrNull = FromHttpContextOrNull(httpContext);
+        if (userOrNull is null)
+            throw new InvalidOperationException("User does not exist");
+        return userOrNull;
     }
 }

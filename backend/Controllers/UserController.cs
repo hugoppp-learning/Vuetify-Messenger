@@ -23,10 +23,7 @@ public class UserController : ControllerBase
     [HttpGet("current")]
     public ActionResult<ApplicationUser>GetCurrent()
     {
-        var user = _userRepo.FromHttpContext(HttpContext);
-        if (user is null)
-            throw new InvalidOperationException("Could not find user");
-            
-        return user;
+        return _userRepo.FromHttpContext(HttpContext);
     }
+    
 }
