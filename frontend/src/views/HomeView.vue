@@ -28,7 +28,7 @@
           rounded="lg"
         >
           <v-list>
-            <CreatePostForm @newPostCreated="m => addNewPost(m)"/>
+            <CreatePostForm/>
             <Post v-for="post in postStore.posts" :key="post.id"
                   :likes="post.likes"
                   :liked="post.liked"
@@ -72,7 +72,6 @@
 </style>
 
 <script>
-import HelloWorld from '../components/HelloWorld'
 import Post from '@/components/Post'
 import CreatePostForm from '@/components/CreatePostForm'
 import { usePostStore } from '@/store/postStore'
@@ -83,7 +82,6 @@ export default {
   components: {
     CreatePostForm,
     Post,
-    HelloWorld
   },
 
   setup () {
@@ -99,19 +97,6 @@ export default {
 
   methods: {
 
-    addNewPost (message) {
-      let newPost = {
-        id: Math.max(...this.posts.map(p => p.id)) + 1,
-        name: 'hugop',
-        profilePicture: 'https://i.pravatar.cc/300',
-        message: message,
-        likes: 0,
-        liked: true
-      }
-      this.posts.unshift(newPost)
-      this.$refs.newPostForm.reset()
-      console.log(newPost)
-    }
   },
 
   data: () => ({

@@ -10,31 +10,33 @@
         <v-textarea v-model="newPostMessage" auto-grow rows="1" flat solo hide-details
                     label="What's up?"></v-textarea>
       </v-form>
-      <v-btn @click="createPost()">Post</v-btn>
+      <v-btn @click="addNewPost">Post</v-btn>
     </div>
   </PostCard>
 </template>
 
 <script>
 import PostCard from '@/components/PostCard'
+import { usePostStore } from '@/store/postStore'
 
 export default {
   name: 'CreatePostForm',
   components: { PostCard },
 
-  computed: {
+  setup(){
+    return {postStore: usePostStore()}
   },
+  computed: {},
 
-  emits: ['newPostCreated'],
   data: () => ({
     newPostMessage: '',
-    loggedInUser:{profilePicture: ''}
+    loggedInUser: { profilePicture: '' }
   }),
 
   methods: {
-    createPost () {
-
-      this.$emit('newPostCreated', this.newPostMessage)
+    async addNewPost() {
+      await this.postStore.createPost(this.newPostMessage)
+      this.$refs.newPostForm.reset()
     },
   },
 }

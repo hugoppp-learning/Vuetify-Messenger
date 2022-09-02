@@ -12,10 +12,16 @@ export const usePostStore = defineStore('post', {
   actions: {
     async fetchPosts () {
       const response = await axios.get(resource_uri)
-      this.posts = response.data;
+      this.posts = response.data
     },
+    async createPost (message) {
+      console.log(message)
+      const response = await axios.post(resource_uri, { message });
+      const post = response.data;
+      this.posts.unshift(post)
+      return post
+    }
   },
 
-  getters: {
-  }
+  getters: {}
 })

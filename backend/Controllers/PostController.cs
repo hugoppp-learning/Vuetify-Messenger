@@ -61,17 +61,18 @@ public class PostController : ControllerBase
         if (applicationUser is null)
             return Unauthorized();
 
-        _posts.Add(new Post()
+        var post = new Post()
         {
             Message = createPost.Message,
             Username = applicationUser.Username,
             ProfilePicture = applicationUser.ProfilePicture,
             Liked = true,
             Likes = 0,
-            Id = 1
-        });
+            Id = _posts.Max(p => p.Id) + 1
+        };
+        _posts.Add(post);
 
-        return Ok();
+        return Ok(post);
     }
 
     [HttpGet]
@@ -79,6 +80,6 @@ public class PostController : ControllerBase
     public IEnumerable<object> Get()
     {
         Task.Delay(TimeSpan.FromSeconds(1)).Wait();
-        return _posts;
+        return _posts.OrderByDescending(p => p.Id);
     }
 }
