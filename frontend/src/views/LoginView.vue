@@ -69,7 +69,6 @@ export default {
   },
   computed: {
     invalidCredentialsMsg: function () {
-      console.log(this.wrongPassword)
       if (this.wrongPassword && !this.password) {
         this.wrongPassword = false;
         return "Invalid credentials";

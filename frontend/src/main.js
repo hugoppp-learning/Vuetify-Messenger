@@ -12,10 +12,9 @@ const router = createRouter(pinia)
 
 Vue.config.productionTip = false
 axios.interceptors.request.use(function (config) {
-  const token = useAuthStore(pinia).token
-  if (token != null){
-    console.log("Using token auth")
-    config.headers.common["Authorization"] = token
+  const currentUser = useAuthStore(pinia).currentUser;
+  if (currentUser?.token != null){
+    config.headers.common["Authorization"] = currentUser.token
   }
   return config
 })

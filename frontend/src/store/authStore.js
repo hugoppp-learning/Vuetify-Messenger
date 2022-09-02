@@ -6,9 +6,8 @@ const resource_uri = 'http://localhost:5277/'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    currentUser: null,
+    currentUser: JSON.parse(localStorage.getItem('user')) ?? {},
     returnUrl: null,
-    token: null,
   }),
 
   actions: {
@@ -21,8 +20,10 @@ export const useAuthStore = defineStore('auth', {
         return false
       }
 
-      this.token = 'Bearer ' + response.data.token
-      this.currentUser = (await axios.get(resource_uri + 'user/current')).data
+      this.currentUser.token = 'Bearer ' + response.data.token
+      this.currentUser = { ...this.currentUser, ...(await axios.get(resource_uri + 'user/current')).data }
+      localStorage.setItem('user', JSON.stringify(this.currentUser));
+      console.log({"logged in user" : this.currentUser})
       await router.push(this.returnUrl || '/')
       return true
     },
@@ -35,7 +36,6 @@ export const useAuthStore = defineStore('auth', {
   },
 
   getters: {
-    getToken: (state) => state.token,
-    isAuth: (state) => state.token != null
+    isAuth: (state) => state.currentUser.token != null
   }
 })
