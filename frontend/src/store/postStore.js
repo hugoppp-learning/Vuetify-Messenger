@@ -15,11 +15,16 @@ export const usePostStore = defineStore('post', {
       this.posts = response.data
     },
     async createPost (message) {
-      console.log(message)
       const response = await axios.post(resource_uri, { message });
       const post = response.data;
       this.posts.unshift(post)
       return post
+    },
+    async likePost (id) {
+      await axios.post(`${resource_uri}/${id}/like`);
+    },
+    async unlikePost (id) {
+      await axios.delete(`${resource_uri}/${id}/like`);
     }
   },
 

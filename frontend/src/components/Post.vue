@@ -4,21 +4,25 @@
 
       <div class="profile_pic_colum pr-2">
         <v-avatar size="48">
-          <img :src="profilePicture" alt="">
+          <img :src="model.profilePicture" alt="">
         </v-avatar>
       </div>
 
       <div class="post_colum mpt-0 px-1">
-        @<span class="font-weight-bold">{{ username }}</span>
+        @<span class="font-weight-bold">{{ model.username }}</span>
 
-        <div class="pl-0 py-1">{{ message }}</div>
+        <div class="pl-0 py-1">{{ model.message }}</div>
 
 
         <div class="action_icon_container">
-          <v-icon @click="toggleLike()" class="mr-2">
-            {{ liked ? 'mdi-heart' : 'mdi-heart-outline' }}
+          <v-icon
+            :disabled="this.isMyPost()"
+            @click="toggleLike()"
+            class="mr-2"
+          >
+            {{ isLiked() ? 'mdi-heart' : 'mdi-heart-outline' }}
           </v-icon>
-          <span>{{ likes }}</span>
+          <span>{{ model.likes }}</span>
 
           <v-spacer/>
 
@@ -50,25 +54,41 @@
 
 <script>
 import PostCard from '@/components/PostCard'
+import { useAuthStore } from '@/store/authStore'
+import { usePostStore } from '@/store/postStore'
 
 export default {
+
+  setup () {
+    return {
+      authStore: useAuthStore(),
+      postStore: usePostStore()
+    }
+  },
+
   name: 'Post',
   components: { PostCard },
   props: [
-    'liked',
-    'profilePicture',
-    'username',
-    'message',
-    'likes',
+    'model'
   ],
   methods: {
-    toggleLike () {
-      if (this.liked) {
-        this.likes--
+    isMyPost () {
+      return this.model.username === this.authStore.currentUser.username
+    },
+    async toggleLike () {
+      if (this.model.liked) {
+        await this.postStore.unlikePost(this.model.id)
+        this.model.likes--
       } else {
-        this.likes++
+        await this.postStore.likePost(this.model.id)
+        this.model.likes++
       }
-      this.liked = !this.liked
+      this.model.liked = !this.model.liked
+    },
+    isLiked () {
+      return this.model.liked ||
+        this.model.username === this.authStore.currentUser.username
+
     }
   }
 

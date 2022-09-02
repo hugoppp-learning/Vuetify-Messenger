@@ -30,11 +30,7 @@
           <v-list>
             <CreatePostForm/>
             <Post v-for="post in postStore.posts" :key="post.id"
-                  :likes="post.likes"
-                  :liked="post.liked"
-                  :message="post.message"
-                  :profile-picture="post.profilePicture"
-                  :username="post.username"
+                  :model="post"
             >
             </Post>
           </v-list>
