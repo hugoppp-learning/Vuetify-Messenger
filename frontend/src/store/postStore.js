@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import post from '@/components/Post'
 
 const resource_uri = 'http://localhost:5277/Post'
 

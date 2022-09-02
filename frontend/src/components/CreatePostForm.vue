@@ -8,7 +8,7 @@
       </div>
       <v-form ref="newPostForm" class="d-inline-block flex-grow-1">
         <v-textarea v-model="newPostMessage" auto-grow rows="1" flat solo hide-details
-                    label="What's up?"></v-textarea>
+                    :label="greetingsStore.currentGreeting"></v-textarea>
       </v-form>
       <v-btn @click="addNewPost">Post</v-btn>
     </div>
@@ -18,13 +18,17 @@
 <script>
 import PostCard from '@/components/PostCard'
 import { usePostStore } from '@/store/postStore'
+import { useGreetingsStore } from '@/store/greetingStore'
 
 export default {
   name: 'CreatePostForm',
   components: { PostCard },
 
   setup(){
-    return {postStore: usePostStore()}
+    return {
+      postStore: usePostStore(),
+      greetingsStore: useGreetingsStore()
+    }
   },
   computed: {},
 
@@ -36,6 +40,7 @@ export default {
   methods: {
     async addNewPost() {
       await this.postStore.createPost(this.newPostMessage)
+      this.greetingsStore.randomize()
       this.$refs.newPostForm.reset()
     },
   },
