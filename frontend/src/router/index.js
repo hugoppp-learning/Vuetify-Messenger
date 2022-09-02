@@ -6,7 +6,7 @@ import LoginView from '@/views/LoginView'
 
 Vue.use(VueRouter)
 
-export let router = null;
+export let router = null
 
 export function createRouter (pinia) {
   const routes = [
@@ -35,7 +35,6 @@ export function createRouter (pinia) {
     }
   ]
 
-
   router = new VueRouter({
     routes,
   })
@@ -43,13 +42,19 @@ export function createRouter (pinia) {
     const allowAnon = ['/login']
     let auth = useAuthStore(pinia)
 
-    if (!auth.isAuth && !allowAnon.includes(to.path) ) {
+    if (!auth.isAuth && !allowAnon.includes(to.path)) {
       auth.returnUrl = to.path
       console.log(`user not logged in, redirecting from '` + to.path + `'to /login`)
-      next ({name: 'login'})
-    }else{
+      next({ name: 'login' })
+    } else if (auth.isAuth && to.path === '/login') {
+      if (from == null) {
+        next({ name: 'home' })
+      }
+      next(from)
+    } else {
       next()
     }
+
   })
 
   return router
