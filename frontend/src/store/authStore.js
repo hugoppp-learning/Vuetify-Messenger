@@ -17,11 +17,14 @@ export const useAuthStore = defineStore('auth', {
         username,
         password
       })
-      if (response.data.code === 'Ok') {
-        this.token = 'Bearer ' + response.data.token
-        this.currentUser = (await axios.get(resource_uri + 'user/current')).data
-        await router.push(this.returnUrl || '/')
+      if (response.data.code !== 'Ok') {
+        return false
       }
+
+      this.token = 'Bearer ' + response.data.token
+      this.currentUser = (await axios.get(resource_uri + 'user/current')).data
+      await router.push(this.returnUrl || '/')
+      return true
     },
     async register (email, username, password) {
       const response = await axios.post(resource_uri + 'register', {

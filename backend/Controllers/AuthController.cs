@@ -39,7 +39,7 @@ public class AuthController : ControllerBase
     {
         var user = _authService.Authenticate(login);
         if (user is null)
-            return Unauthorized();
+            return Ok(new AuthResponse(AuthResponseCode.InvalidCredentials));
 
         if (!user.Roles.Contains(Role.Verified))
             return Ok(new AuthResponse(AuthResponseCode.NotVerified));
@@ -54,6 +54,7 @@ public class AuthController : ControllerBase
     {
         NotVerified,
         Ok,
+        InvalidCredentials
     }
 
 
