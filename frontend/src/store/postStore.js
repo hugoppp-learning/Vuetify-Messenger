@@ -19,11 +19,20 @@ export const usePostStore = defineStore('post', {
       this.posts.unshift(post)
       return post
     },
-    async likePost (id) {
-      await axios.post(`${resource_uri}/${id}/like`);
+    async likePost (post) {
+      console.log(post)
+      await axios.post(`${resource_uri}/${post.id}/like`);
+      post.likes++
+      post.liked = true;
     },
-    async unlikePost (id) {
-      await axios.delete(`${resource_uri}/${id}/like`);
+    async unlikePost (post) {
+      await axios.delete(`${resource_uri}/${post.id}/like`);
+      post.likes--
+      post.liked = false;
+    },
+    async deletePost (id) {
+      this.posts = this.posts.filter(p => p.id !== id)
+      await axios.delete(`${resource_uri}/${id}`);
     }
   },
 

@@ -56,12 +56,23 @@ public class PostController : ControllerBase
 
         return Ok(PostDto.New(post));
     }
+    
+    [HttpDelete("{id:int}/")]
+    public IActionResult Post(int id)
+    {
+        var applicationUser = _users.FromHttpContext(HttpContext);
+        var post = _posts.First(p => p.Id == id);
+        if (applicationUser.Username != post.Username)
+            return Unauthorized();
+
+        _posts.Remove(post);
+        return Ok();
+    }
 
     [HttpGet]
     [AllowAnonymous]
     public ActionResult<IEnumerable<PostDto>> Get()
     {
-        Task.Delay(TimeSpan.FromSeconds(1)).Wait();
         return Ok(_posts
             .OrderByDescending(p => p.Id)
             .Select(p => new PostDto(p, _users.FromHttpContext(HttpContext).Id)));

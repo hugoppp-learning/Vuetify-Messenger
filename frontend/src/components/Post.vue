@@ -1,6 +1,6 @@
 <template>
   <PostCard>
-    <div class="d-flex">
+    <div style="z-index: 10" class="d-flex">
 
       <div class="profile_pic_colum pr-2">
         <v-avatar size="48">
@@ -16,7 +16,7 @@
 
         <div class="action_icon_container">
           <v-icon
-            :disabled="this.isMyPost()"
+            :disabled="isMyPost()"
             @click="toggleLike()"
             class="mr-2"
           >
@@ -24,13 +24,24 @@
           </v-icon>
           <span>{{ model.likes }}</span>
 
-          <v-spacer/>
-
-          <v-hover v-slot="{hover}" close-delay="100" open-delay="200">
-            <v-icon class="mr-2">
-              {{ hover ? 'mdi-delete' : 'mdi-delete-outline' }}
+          <v-spacer v-if="isMyPost()"/>
+          <v-hover v-if="isMyPost()" v-slot="{hover}" close-delay="75" open-delay="75">
+            <v-icon @click="confirmDialogOpen = true" :color="(hover || confirmDialogOpen) ? 'red' : ''" class="mr-2">
+              {{ (confirmDialogOpen) ? 'mdi-delete' : 'mdi-delete-outline' }}
             </v-icon>
           </v-hover>
+          <v-dialog content-class="rounded-xl" close-delay="1175" width="300" v-model="confirmDialogOpen">
+            <v-card >
+              <v-card-title>Delete Post?</v-card-title>
+              <v-card-text class="pb-0">
+                This can’t be undone and it will be removed from your profile, the homepage and from search results.
+              </v-card-text>
+              <v-container class="px-5 pb-5">
+                <v-btn rounded="rounded" block color="red" class="my-2 white--text" @click="deletePost()">Delete</v-btn>
+                <v-btn rounded="rounded" block color="primary" class="ma-y" @click="confirmDialogOpen = false">Cancel</v-btn>
+              </v-container>
+            </v-card>
+          </v-dialog>
 
           <v-spacer/>
 
@@ -71,19 +82,21 @@ export default {
   props: [
     'model'
   ],
+  data: () => ({ confirmDialogOpen: false }),
   methods: {
     isMyPost () {
       return this.model.username === this.authStore.currentUser.username
     },
     async toggleLike () {
       if (this.model.liked) {
-        await this.postStore.unlikePost(this.model.id)
-        this.model.likes--
+        await this.postStore.unlikePost(this.model)
       } else {
-        await this.postStore.likePost(this.model.id)
-        this.model.likes++
+        await this.postStore.likePost(this.model)
       }
-      this.model.liked = !this.model.liked
+    },
+    async deletePost () {
+      await this.postStore.deletePost(this.model.id)
+      this.confirmDialogOpen = false
     },
     isLiked () {
       return this.model.liked ||
