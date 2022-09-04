@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using backend.Model;
 using backend.Repository;
 using backend.Services.Security;
@@ -6,14 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
-
-public record SignupDto([Required] [EmailAddress] string Email, [Required]
-    [StringLength(32, MinimumLength = 4)]
-    string Username, [Required]
-    [StringLength(32, MinimumLength = 4)]
-    string Password);
-
-public record AuthRequestDto([Required] string Username, [Required] string Password);
 
 [ApiController]
 [Route("")]
@@ -33,7 +24,6 @@ public class AuthController : ControllerBase
         _jwtLogin = jwtLogin;
     }
 
-    [AllowAnonymous]
     [HttpPost("auth")]
     public ActionResult<AuthResponse> Auth([FromBody] AuthRequestDto login)
     {
@@ -48,17 +38,7 @@ public class AuthController : ControllerBase
         return Ok(new AuthResponse(AuthResponseCode.Ok, token));
     }
 
-    public record AuthResponse(AuthResponseCode Code, string? Token = null);
 
-    public enum AuthResponseCode
-    {
-        NotVerified,
-        Ok,
-        InvalidCredentials
-    }
-
-
-    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<SignupResponse>> Signup([FromBody] SignupDto signup)
     {
@@ -71,16 +51,6 @@ public class AuthController : ControllerBase
         return Ok(new SignupResponse(SignupResponseCode.Ok));
     }
 
-    public record SignupResponse(SignupResponseCode Code);
-
-    public enum SignupResponseCode
-    {
-        EmailTaken,
-        UserNameTaken,
-        Ok
-    }
-
-    [AllowAnonymous]
     [HttpPost("VerifyEmail")]
     public ActionResult<VerifyEmailResponse> VerifyEmail(string token)
     {
@@ -90,11 +60,4 @@ public class AuthController : ControllerBase
             return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Invalid));
     }
 
-    public record VerifyEmailResponse(VerifyEmailResponseCode Code);
-
-    public enum VerifyEmailResponseCode
-    {
-        Invalid,
-        Ok,
-    }
 }

@@ -15,7 +15,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddApplicationSwaggerConfig();
 
-if (builder.Environment.IsDevelopment())
+if (builder.Configuration.GetValue<bool>("WriteEmailsToLog"))
     builder.Services.AddSingleton<IEmailSendingService, LoggerEmailService>();
 //else todo add real logger email service
 
@@ -37,7 +37,8 @@ if (app.Environment.IsDevelopment())
         .AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader());
-    app.Services.GetRequiredService<DevelopmentDataService>().SeedData();
+    if (app.Configuration.GetValue<bool>("SeedMockData"))
+        app.Services.GetRequiredService<DevelopmentDataService>().SeedData();
 }
 
 
