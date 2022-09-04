@@ -1,10 +1,10 @@
 namespace backend.Model;
 
-public class Post : IHasId
+public class Post
 {
-    public int Id { get; init; }
+    public Guid Id { get; init; }
     public string Username { get; init; }
     public string? ProfilePicture { get; init; }
     public string Message { get; init; }
-    public HashSet<int> LikedUserIds { get; } = new();
+    public HashSet<Guid> LikedUserIds { get; } = new();
 }

@@ -1,7 +1,7 @@
 namespace backend.Model;
-public class ApplicationUser : IHasId
+public class ApplicationUser 
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Email { get; set; }
     public string PasswordHash { get; set; }
     public List<Role> Roles { get; set; }

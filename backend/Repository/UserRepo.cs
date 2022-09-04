@@ -10,7 +10,7 @@ public class UserRepo
 
     public void Add(ApplicationUser applicationUser)
     {
-        applicationUser.Id = _userByEmail.Values.NextId();
+        applicationUser.Id = Guid.NewGuid();
         _userByEmail[applicationUser.Email] = applicationUser;
     }
 

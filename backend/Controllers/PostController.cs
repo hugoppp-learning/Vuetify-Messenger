@@ -13,10 +13,10 @@ public class PostController : ControllerBase
     private readonly ILogger<PostController> _logger;
     private readonly UserRepo _users;
 
-    public record PostDto(int Id, string Username, string? ProfilePicture, string Message, int Likes, bool Liked)
+    public record PostDto(Guid Id, string Username, string? ProfilePicture, string Message, int Likes, bool Liked)
     {
         public PostDto(Post post,
-            int currentUserId) : this(
+            Guid currentUserId) : this(
             post.Id,
             post.Username,
             post.ProfilePicture,
@@ -50,7 +50,7 @@ public class PostController : ControllerBase
             Message = createPost.Message,
             Username = applicationUser.Username,
             ProfilePicture = applicationUser.ProfilePicture,
-            Id = _posts.NextId(),
+            Id = new Guid(),
         };
         _posts.Add(post);
 
@@ -58,7 +58,7 @@ public class PostController : ControllerBase
     }
     
     [HttpDelete("{id:int}/")]
-    public IActionResult Post(int id)
+    public IActionResult Post(Guid id)
     {
         var applicationUser = _users.FromHttpContext(HttpContext);
         var post = _posts.First(p => p.Id == id);
@@ -79,7 +79,7 @@ public class PostController : ControllerBase
     }
 
     [HttpPost("{id:int}/Like")]
-    public IActionResult AddLike(int id)
+    public IActionResult AddLike(Guid id)
     {
         var (post, user) = AssertPostNotFromCurrentUser(id);
         post.LikedUserIds.Add(user.Id);
@@ -87,14 +87,14 @@ public class PostController : ControllerBase
     }
 
     [HttpDelete("{id:int}/Like")]
-    public IActionResult RemoveLike(int id)
+    public IActionResult RemoveLike(Guid id)
     {
         var (post, user) = AssertPostNotFromCurrentUser(id);
         post.LikedUserIds.Remove(user.Id);
         return Ok();
     }
 
-    private (Post, ApplicationUser) AssertPostNotFromCurrentUser(int id)
+    private (Post, ApplicationUser) AssertPostNotFromCurrentUser(Guid id)
     {
         var post = _posts.First(p => p.Id == id);
         var applicationUser = _users.FromHttpContext(HttpContext);
@@ -107,23 +107,23 @@ public class PostController : ControllerBase
     {
         new Post()
         {
-            Id = 1,
+            Id =Guid.NewGuid(),
             Username = "hugop",
             ProfilePicture = "https://i.pravatar.cc/300",
             Message = "This is the first post on this site, Yay!! :)",
-            LikedUserIds = { 1, 2, 3, 4, 5 }
+            LikedUserIds = { Guid.NewGuid(), Guid.NewGuid() }
         },
         new Post()
         {
-            Id = 2,
+            Id =Guid.NewGuid(),
             Username = "hugop",
             ProfilePicture = "https://i.pravatar.cc/300",
             Message = "This is the second post on this site",
-            LikedUserIds = { 1, 2, 3, 4, 5 }
+            LikedUserIds = {Guid.NewGuid(), Guid.NewGuid(),Guid.NewGuid() }
         },
         new Post()
         {
-            Id = 3,
+            Id = Guid.NewGuid(),
             Username = "hugop",
             ProfilePicture = "https://i.pravatar.cc/300",
             Message = @"Lorem ipsum dolor sit amet, consectetur adipiscing elit,
