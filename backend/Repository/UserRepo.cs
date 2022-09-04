@@ -18,24 +18,24 @@ public class UserRepo
         _db = db;
     }
 
-    public void Add(ApplicationUser applicationUser)
+    public async Task Add(ApplicationUser applicationUser)
     {
         var dbUser = _mapper.Map<DbApplicationUser>(applicationUser);
-        _db.Container.CreateItemAsync(dbUser).Wait();
+        await _db.Container.CreateItemAsync(dbUser);
     }
 
-    public List<ApplicationUser> GetAllUsers()
+    public async Task<List<ApplicationUser>> GetAllUsers()
     {
-        return _db.Container.GetItemLinqQueryable<DbApplicationUser>()
+        return (await _db.Container.GetItemLinqQueryable<DbApplicationUser>()
             .Where(u => u.Discriminator == Discriminator.User)
-            .ToFeedIterator().ReadNextAsync().Result.Cast<ApplicationUser>().ToList();
+            .ToFeedIterator().ReadNextAsync()).Cast<ApplicationUser>().ToList();
     }
 
-    public ApplicationUser? FindByUsername(string username)
+    public async Task<ApplicationUser?> FindByUsername(string username)
     {
-        var dbUser = _db.Container.GetItemLinqQueryable<DbApplicationUser>()
+        var dbUser = (await _db.Container.GetItemLinqQueryable<DbApplicationUser>()
             .Where(u => u.Discriminator == Discriminator.User && u.Username == username)
-            .ToFeedIterator().ReadNextAsync().Result.FirstOrDefault();
+            .ToFeedIterator().ReadNextAsync()).FirstOrDefault();
 
         return dbUser;
     }
@@ -49,9 +49,9 @@ public class UserRepo
         return dbUser;
     }
 
-    public void DeleteUserById(Guid id)
+    public async Task DeleteUserById(Guid id)
     {
-        _db.Container.DeleteItemAsync<DbApplicationUser>(id.ToString(), new PartitionKey(id.ToString()));
+        await _db.Container.DeleteItemAsync<DbApplicationUser>(id.ToString(), new PartitionKey(id.ToString()));
     }
 
     public async Task<ApplicationUser> FromHttpContext(HttpContext httpContext)

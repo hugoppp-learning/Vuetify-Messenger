@@ -25,9 +25,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("auth")]
-    public ActionResult<AuthResponse> Auth([FromBody] AuthRequestDto login)
+    public async Task<ActionResult<AuthResponse>> Auth([FromBody] AuthRequestDto login)
     {
-        var user = _authService.Authenticate(login);
+        var user = await _authService.Authenticate(login);
         if (user is null)
             return Ok(new AuthResponse(AuthResponseCode.InvalidCredentials));
 
@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<SignupResponse>> Signup([FromBody] SignupDto signup)
     {
-        if (_users.FindByUsername(signup.Username) is not null)
+        if (await _users.FindByUsername(signup.Username) is not null)
             return Ok(new SignupResponse(SignupResponseCode.UserNameTaken));
         if (await _users.FindByEmail(signup.Email) is not null)
             return Ok(new SignupResponse(SignupResponseCode.EmailTaken));

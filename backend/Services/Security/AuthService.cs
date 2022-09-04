@@ -32,15 +32,15 @@ public class AuthService
             Roles = new List<Role>(),
             Id = Guid.NewGuid()
         };
-        _users.Add(applicationUser);
+        await _users.Add(applicationUser);
         var emailVerificationToken = _jwtEmailVerification.GenerateEmailVerificationToken(signupDto);
         await _emailSendingService.SendEmailVerification(applicationUser, emailVerificationToken);
     }
 
 
-    public ApplicationUser? Authenticate(AuthRequestDto login)
+    public async Task<ApplicationUser?> Authenticate(AuthRequestDto login)
     {
-        var applicationUser = _users.FindByUsername(login.Username);
+        var applicationUser = await _users.FindByUsername(login.Username);
         if (applicationUser is null)
             return null;
 

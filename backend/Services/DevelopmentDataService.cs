@@ -32,7 +32,7 @@ public class DevelopmentDataService
 
     private async Task CreateTestAccount()
     {
-        if (_users.FindByUsername("string") is not null)
+        if (await _users.FindByUsername("string") is not null)
         {
             return;
         }
