@@ -1,5 +1,6 @@
+using AutoMapper;
+using backend.Controllers;
 using backend.Repository;
-using backend.Repository.Database;
 using backend.Services.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
@@ -14,13 +15,19 @@ public static class ServicesExtension
                 .AddSingleton<AuthService>()
                 .AddSingleton<DevelopmentDataService>()
                 .AddSingleton<JwtEmailVerificationService>()
-                .AddAutoMapper(c => c.AddProfile<DbMapperProfile>())
+                .AddAutoMapper(c =>
+                {
+                    c.AddProfile<DbMapperProfile>();
+                    c.AddProfile<DtoMapperProfile>();
+                })
                 //repos
                 .AddSingleton<CosmosDbService>()
                 .AddSingleton<UserRepo>()
                 .AddSingleton<PostRepo>()
             ;
+
     }
+    
 
     public static IServiceCollection AddApplicationSwaggerConfig(this IServiceCollection serviceCollection)
     {
@@ -47,5 +54,13 @@ public static class ServicesExtension
                 { openApiSecurityScheme, Array.Empty<string>() }
             });
         });
+    }
+}
+
+public class MapperAsserter
+{
+    public static void Assert(IMapper mapper)
+    {
+        mapper.ConfigurationProvider.AssertConfigurationIsValid();
     }
 }

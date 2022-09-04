@@ -66,7 +66,6 @@ public class DevelopmentDataService
             Username = "hugop",
             ProfilePicture = "https://i.pravatar.cc/300",
             Message = "This is the first post on this site, Yay!! :)",
-            LikedUserIds = { Guid.NewGuid(), Guid.NewGuid() }
         },
         new Post()
         {
@@ -74,7 +73,7 @@ public class DevelopmentDataService
             Username = "hugop",
             ProfilePicture = "https://i.pravatar.cc/300",
             Message = "This is the second post on this site",
-            LikedUserIds = { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() }
+            LikesCount = 0,
         },
         new Post()
         {

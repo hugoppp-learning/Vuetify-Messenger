@@ -6,5 +6,6 @@ public class Post
     public string Username { get; init; }
     public string? ProfilePicture { get; init; }
     public string Message { get; init; }
-    public HashSet<Guid> LikedUserIds { get; } = new();
+    public int LikesCount { get; init; }
+    public bool Liked { get; set; }
 }

@@ -1,3 +1,4 @@
+using AutoMapper;
 using backend.Model;
 using backend.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -13,17 +14,19 @@ public class PostController : ControllerBase
     private readonly ILogger<PostController> _logger;
     private readonly UserRepo _users;
     private readonly PostRepo _posts;
+    private readonly IMapper _mapper;
 
-    public PostController(ILogger<PostController> logger, UserRepo users, PostRepo posts)
+    public PostController(ILogger<PostController> logger, UserRepo users, PostRepo posts, IMapper mapper)
     {
         _logger = logger;
         _users = users;
         _posts = posts;
+        _mapper = mapper;
     }
 
 
     [HttpPost]
-    public IActionResult Post([FromBody] CreatePostDto createPost)
+    public ActionResult<PostDto> Post([FromBody] CreatePostDto createPost)
     {
         var applicationUser = _users.FromHttpContext(HttpContext);
 
@@ -32,11 +35,12 @@ public class PostController : ControllerBase
             Message = createPost.Message,
             Username = applicationUser.Username,
             ProfilePicture = applicationUser.ProfilePicture,
-            // Id = new Guid(),//todo
+            Liked = false,
+            LikesCount = 0,
         };
         _posts.Add(post);
 
-        return Ok(PostDto.New(post));
+        return Ok(_mapper.Map<PostDto>(post));
     }
 
     [HttpDelete("{id:Guid}/")]
@@ -55,26 +59,31 @@ public class PostController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public ActionResult<IEnumerable<PostDto>> Get()
+    public async Task<ActionResult<IEnumerable<PostDto>>> GetPosts()
     {
-        var posts = _posts.GetAll();
-        var postDtos = posts.Select(p => new PostDto(p, _users.FromHttpContext(HttpContext).Id));
-        return Ok(postDtos);
+         var posts = (await _posts.GetAll(_users.FromHttpContext(HttpContext))).ToList();
+        return Ok(_mapper.Map<List<PostDto>>(posts));
     }
 
     [HttpPost("{id:Guid}/Like")]
-    public IActionResult AddLike(Guid id)
+    public async Task<IActionResult> AddLike(Guid id)
     {
-        var (post, user) = AssertPostNotFromCurrentUser(id);
-        post.LikedUserIds.Add(user.Id);
+        var (post, currentUser) = AssertPostNotFromCurrentUser(id);
+        var postInteraction = new PostInteraction()
+        {
+            InteractionType = PostInteractionType.Like,
+            PostId = post.Id,
+            InteractionUserId = currentUser.Id
+        };
+        await _posts.AddPostInteraction(postInteraction);
         return Ok();
     }
 
     [HttpDelete("{id:Guid}/Like")]
-    public IActionResult RemoveLike(Guid id)
+    public async Task<IActionResult> RemoveLike(Guid id)
     {
         var (post, user) = AssertPostNotFromCurrentUser(id);
-        post.LikedUserIds.Remove(user.Id);
+        await _posts.RemovePostInteraction(post, user, PostInteractionType.Like);
         return Ok();
     }
 

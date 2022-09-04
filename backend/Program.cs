@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using AutoMapper;
 using backend.Services;
 using backend.Services.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,6 +40,8 @@ if (app.Environment.IsDevelopment())
         .AllowAnyHeader());
     if (app.Configuration.GetValue<bool>("SeedMockData"))
         app.Services.GetRequiredService<DevelopmentDataService>().SeedData();
+
+    MapperAsserter.Assert(app.Services.GetRequiredService<IMapper>());
 }
 
 

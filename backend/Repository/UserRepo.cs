@@ -1,6 +1,5 @@
 using AutoMapper;
 using backend.Model;
-using backend.Repository.Database;
 using backend.Services;
 using backend.Services.Security;
 using Microsoft.Azure.Cosmos;
