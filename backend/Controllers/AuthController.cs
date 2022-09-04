@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
     {
         if (_users.FindByUsername(signup.Username) is not null)
             return Ok(new SignupResponse(SignupResponseCode.UserNameTaken));
-        if (_users.FindByEmail(signup.Email) is not null)
+        if (await _users.FindByEmail(signup.Email) is not null)
             return Ok(new SignupResponse(SignupResponseCode.EmailTaken));
 
         await _authService.SignupAsync(signup);
@@ -52,9 +52,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("VerifyEmail")]
-    public ActionResult<VerifyEmailResponse> VerifyEmail(string token)
+    public async Task<ActionResult<VerifyEmailResponse>> VerifyEmail(string token)
     {
-        if (_authService.VerifyEmail(token))
+        if (await _authService.VerifyEmail(token))
             return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Ok));
         else
             return Ok(new VerifyEmailResponse(VerifyEmailResponseCode.Invalid));

@@ -39,7 +39,7 @@ public class DevelopmentDataService
 
         await _authService.SignupAsync(new SignupDto("a@b.c", "string", "string"));
         Debug.Assert(_mockEmailSendingService.EmailVerificationToken is not null);
-        if (!_authService.VerifyEmail(_mockEmailSendingService.EmailVerificationToken))
+        if (! await _authService.VerifyEmail(_mockEmailSendingService.EmailVerificationToken))
             throw new Exception("Could not create test account");
     }
 

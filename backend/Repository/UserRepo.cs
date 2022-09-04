@@ -40,11 +40,11 @@ public class UserRepo
         return dbUser;
     }
 
-    public ApplicationUser? FindByEmail(string email)
+    public async Task<DbApplicationUser?> FindByEmail(string email)
     {
-        var dbUser = _db.Container.GetItemLinqQueryable<DbApplicationUser>()
+        var dbUser = (await _db.Container.GetItemLinqQueryable<DbApplicationUser>()
             .Where(u => u.Discriminator == Discriminator.User && u.Email == email)
-            .ToFeedIterator().ReadNextAsync().Result.FirstOrDefault();
+            .ToFeedIterator().ReadNextAsync()).FirstOrDefault();
 
         return dbUser;
     }
@@ -54,21 +54,21 @@ public class UserRepo
         _db.Container.DeleteItemAsync<DbApplicationUser>(id.ToString(), new PartitionKey(id.ToString()));
     }
 
-    public ApplicationUser FromHttpContext(HttpContext httpContext)
+    public async Task<ApplicationUser> FromHttpContext(HttpContext httpContext)
     {
-        var user = FindByEmail(httpContext.User.GetEmail());
+        var user = await FindByEmail(httpContext.User.GetEmail());
         if (user is null)
             throw new InvalidOperationException("Could not find user from httpContext");
 
         return user;
     }
 
-    public void UpdateRoles(Guid applicationUserId, List<Role> applicationUserRoles)
+    public Task UpdateRoles(Guid applicationUserId, List<Role> applicationUserRoles)
     {
-        var itemResponse = _db.Container.PatchItemAsync<DbApplicationUser>(
+        return Task.FromResult(_db.Container.PatchItemAsync<DbApplicationUser>(
             applicationUserId.ToString(),
             new PartitionKey(applicationUserId.ToString()),
             new[] { PatchOperation.Add("/roles", applicationUserRoles) }
-        ).Result;
+        ));
     }
 }

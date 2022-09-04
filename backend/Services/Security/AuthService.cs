@@ -50,19 +50,19 @@ public class AuthService
         return null;
     }
 
-    public bool VerifyEmail(string token)
+    public async Task<bool> VerifyEmail(string token)
     {
         var email = _jwtEmailVerification.ValidateEmailToken(token);
         if (email is null)
             return false;
 
-        var applicationUser = _users.FindByEmail(email);
+        var applicationUser = await _users.FindByEmail(email);
 
         if (applicationUser is null || applicationUser.Roles.Contains(Role.Verified))
             return false;
 
         applicationUser.Roles.Add(Role.Verified);
-        _users.UpdateRoles(applicationUser.Id, applicationUser.Roles);
+        await _users.UpdateRoles(applicationUser.Id, applicationUser.Roles);
         return true;
     }
 }

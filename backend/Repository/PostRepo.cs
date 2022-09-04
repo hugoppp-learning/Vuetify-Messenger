@@ -48,27 +48,27 @@ public class PostRepo
         return allPosts;
     }
 
-    public Post GetById(Guid id)
+    public async Task<Post> GetById(Guid id)
     {
-        var post = _db.Container.GetItemLinqQueryable<DbPost>()
+        var post = (await _db.Container.GetItemLinqQueryable<DbPost>()
             .Where(post => post.Id == id)
-            .ToFeedIterator().ReadNextAsync().Result.First();
+            .ToFeedIterator().ReadNextAsync()).First();
 
         return post;
     }
 
 
-    public void Delete(Guid id)
+    public Task Delete(Guid id)
     {
-        _db.Container.DeleteItemAsync<DbPost>(id.ToString(), new PartitionKey(id.ToString()));
+        return _db.Container.DeleteItemAsync<DbPost>(id.ToString(), new PartitionKey(id.ToString()));
     }
 
-    public string? GetPosterUsername(Guid id)
+    public async Task<string?> GetPosterUsername(Guid id)
     {
-        var posterUsername = _db.Container.GetItemLinqQueryable<DbPost>()
+        var posterUsername = (await _db.Container.GetItemLinqQueryable<DbPost>()
             .Where(post => post.Id == id)
             .Select(post => post.Username)
-            .ToFeedIterator().ReadNextAsync().Result.FirstOrDefault();
+            .ToFeedIterator().ReadNextAsync()).FirstOrDefault();
 
         return posterUsername;
     }

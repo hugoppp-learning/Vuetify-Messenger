@@ -21,8 +21,8 @@ public class UserController : ControllerBase
 
 
     [HttpGet("current")]
-    public ActionResult<UserDto> GetCurrent()
+    public async Task<ActionResult<UserDto>> GetCurrent()
     {
-        return new UserDto(_userRepo.FromHttpContext(HttpContext));
+        return new UserDto(await _userRepo.FromHttpContext(HttpContext));
     }
 }

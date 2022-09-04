@@ -26,9 +26,9 @@ public class PostController : ControllerBase
 
 
     [HttpPost]
-    public ActionResult<PostDto> Post([FromBody] CreatePostDto createPost)
+    public async Task<ActionResult<PostDto>> Post([FromBody] CreatePostDto createPost)
     {
-        var applicationUser = _users.FromHttpContext(HttpContext);
+        var applicationUser = await _users.FromHttpContext(HttpContext);
 
         var post = new Post()
         {
@@ -38,22 +38,22 @@ public class PostController : ControllerBase
             Liked = false,
             LikesCount = 0,
         };
-        _posts.Add(post);
+        await _posts.Add(post);
 
         return Ok(_mapper.Map<PostDto>(post));
     }
 
     [HttpDelete("{id:Guid}/")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        var applicationUser = _users.FromHttpContext(HttpContext);
-        var post = _posts.GetById(id);
+        var applicationUser = await _users.FromHttpContext(HttpContext);
+        var post = await _posts.GetById(id);
         if (post is null)
             return NotFound();
         if (applicationUser.Username != post.Username)
             return Unauthorized();
 
-        _posts.Delete(id);
+        await _posts.Delete(id);
         return Ok();
     }
 
@@ -61,14 +61,14 @@ public class PostController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetPosts()
     {
-         var posts = (await _posts.GetAll(_users.FromHttpContext(HttpContext))).ToList();
+        var posts = (await _posts.GetAll(await _users.FromHttpContext(HttpContext))).ToList();
         return Ok(_mapper.Map<List<PostDto>>(posts));
     }
 
     [HttpPost("{id:Guid}/Like")]
     public async Task<IActionResult> AddLike(Guid id)
     {
-        var (post, currentUser) = AssertPostNotFromCurrentUser(id);
+        var (post, currentUser) = await AssertPostNotFromCurrentUser(id);
         var postInteraction = new PostInteraction()
         {
             InteractionType = PostInteractionType.Like,
@@ -82,15 +82,15 @@ public class PostController : ControllerBase
     [HttpDelete("{id:Guid}/Like")]
     public async Task<IActionResult> RemoveLike(Guid id)
     {
-        var (post, user) = AssertPostNotFromCurrentUser(id);
+        var (post, user) = await AssertPostNotFromCurrentUser(id);
         await _posts.RemovePostInteraction(post, user, PostInteractionType.Like);
         return Ok();
     }
 
-    private (Post, ApplicationUser) AssertPostNotFromCurrentUser(Guid id)
+    private async Task<(Post, ApplicationUser)> AssertPostNotFromCurrentUser(Guid id)
     {
-        var post = _posts.GetById(id);
-        var applicationUser = _users.FromHttpContext(HttpContext);
+        var post = await _posts.GetById(id);
+        var applicationUser = await _users.FromHttpContext(HttpContext);
         if (applicationUser.Username == post.Username)
             throw new InvalidOperationException("Action not supported for posts by the user itself");
 
