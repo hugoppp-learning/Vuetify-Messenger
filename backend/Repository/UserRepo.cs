@@ -1,41 +1,75 @@
-using System.Diagnostics;
+using AutoMapper;
 using backend.Model;
+using backend.Repository.Database;
+using backend.Services;
 using backend.Services.Security;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 
 namespace backend.Repository;
 
 public class UserRepo
 {
-    private readonly Dictionary<string, ApplicationUser> _userByEmail = new();
+    private readonly IMapper _mapper;
+    private readonly CosmosDbService _db;
+
+    public UserRepo(IMapper mapper, CosmosDbService db)
+    {
+        _mapper = mapper;
+        _db = db;
+    }
 
     public void Add(ApplicationUser applicationUser)
     {
-        applicationUser.Id = Guid.NewGuid();
-        _userByEmail[applicationUser.Email] = applicationUser;
+        var dbUser = _mapper.Map<DbApplicationUser>(applicationUser);
+        _db.Container.CreateItemAsync(dbUser).Wait();
+    }
+
+    public List<ApplicationUser> GetAllUsers()
+    {
+        return _db.Container.GetItemLinqQueryable<DbApplicationUser>()
+            .Where(u => u.Discriminator == Discriminator.User)
+            .ToFeedIterator().ReadNextAsync().Result.Cast<ApplicationUser>().ToList();
     }
 
     public ApplicationUser? FindByUsername(string username)
     {
-        return _userByEmail.Values.FirstOrDefault(u => u.Username == username);
+        var dbUser = _db.Container.GetItemLinqQueryable<DbApplicationUser>()
+            .Where(u => u.Discriminator == Discriminator.User && u.Username == username)
+            .ToFeedIterator().ReadNextAsync().Result.FirstOrDefault();
+
+        return dbUser;
     }
 
     public ApplicationUser? FindByEmail(string email)
     {
-        return _userByEmail.GetValueOrDefault(email);
+        var dbUser = _db.Container.GetItemLinqQueryable<DbApplicationUser>()
+            .Where(u => u.Discriminator == Discriminator.User && u.Email == email)
+            .ToFeedIterator().ReadNextAsync().Result.FirstOrDefault();
+
+        return dbUser;
     }
 
-    public ApplicationUser? FromHttpContextOrNull(HttpContext httpContext)
+    public void DeleteUserById(Guid id)
     {
-        var email = httpContext.User.GetEmail();
-        Debug.Assert(email is not null);
-        return FindByEmail(email);
+        _db.Container.DeleteItemAsync<DbApplicationUser>(id.ToString(), new PartitionKey(id.ToString()));
     }
 
     public ApplicationUser FromHttpContext(HttpContext httpContext)
     {
-        var userOrNull = FromHttpContextOrNull(httpContext);
-        if (userOrNull is null)
-            throw new InvalidOperationException("User does not exist");
-        return userOrNull;
+        var user = FindByEmail(httpContext.User.GetEmail());
+        if (user is null)
+            throw new InvalidOperationException("Could not find user from httpContext");
+
+        return user;
+    }
+
+    public void UpdateRoles(Guid applicationUserId, List<Role> applicationUserRoles)
+    {
+        var itemResponse = _db.Container.PatchItemAsync<DbApplicationUser>(
+            applicationUserId.ToString(),
+            new PartitionKey(applicationUserId.ToString()),
+            new[] { PatchOperation.Add("/roles", applicationUserRoles) }
+        ).Result;
     }
 }

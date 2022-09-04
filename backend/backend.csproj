@@ -1,12 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+      <UserSecretsId>e17f643a-8a0e-4311-ab06-bc69404ee953</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
         <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.30.1" />
@@ -15,7 +17,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="DataAccess" />
+      <Reference Include="AutoMapper">
+        <HintPath>..\..\..\.nuget\packages\automapper\11.0.1\lib\netstandard2.1\AutoMapper.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

@@ -1,10 +1,10 @@
 ﻿using backend.Model;
-using ConsoleApp2;
 using System.Text.Json;
+using backend.Services;
 
 var endpoint = args[0];
 var key = args[1];
-var cosmosDb = new CosmosDb(endpoint, key);
+var cosmosDb = new CosmosDbService(endpoint, key);
 
 Console.WriteLine("User count: " + cosmosDb.GetAllUsers().Count);
 Console.WriteLine("Press any key to insert user");

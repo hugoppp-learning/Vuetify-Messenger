@@ -30,6 +30,7 @@ public class AuthService
             PasswordHash = HashPassword(signupDto.Password),
             Username = signupDto.Username,
             Roles = new List<Role>(),
+            Id = Guid.NewGuid()
         };
         _users.Add(applicationUser);
         var emailVerificationToken = _jwtEmailVerification.GenerateEmailVerificationToken(signupDto);
@@ -61,6 +62,7 @@ public class AuthService
             return false;
 
         applicationUser.Roles.Add(Role.Verified);
+        _users.UpdateRoles(applicationUser.Id, applicationUser.Roles);
         return true;
     }
 }

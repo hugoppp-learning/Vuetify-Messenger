@@ -12,6 +12,16 @@ public class PostController : ControllerBase
 {
     private readonly ILogger<PostController> _logger;
     private readonly UserRepo _users;
+    private readonly PostRepo _posts;
+
+    public PostController(ILogger<PostController> logger, UserRepo users, PostRepo posts)
+    {
+        _logger = logger;
+        _users = users;
+        _posts = posts;
+    }
+
+    public record CreatePostDto(string Message);
 
     public record PostDto(Guid Id, string Username, string? ProfilePicture, string Message, int Likes, bool Liked)
     {
@@ -32,14 +42,6 @@ public class PostController : ControllerBase
         }
     };
 
-    public PostController(ILogger<PostController> logger, UserRepo users)
-    {
-        _logger = logger;
-        _users = users;
-    }
-
-    public record CreatePostDto(string Message);
-
     [HttpPost]
     public IActionResult Post([FromBody] CreatePostDto createPost)
     {
@@ -50,22 +52,24 @@ public class PostController : ControllerBase
             Message = createPost.Message,
             Username = applicationUser.Username,
             ProfilePicture = applicationUser.ProfilePicture,
-            Id = new Guid(),
+            // Id = new Guid(),//todo
         };
         _posts.Add(post);
 
         return Ok(PostDto.New(post));
     }
-    
-    [HttpDelete("{id:int}/")]
-    public IActionResult Post(Guid id)
+
+    [HttpDelete("{id:Guid}/")]
+    public IActionResult Delete(Guid id)
     {
         var applicationUser = _users.FromHttpContext(HttpContext);
-        var post = _posts.First(p => p.Id == id);
+        var post = _posts.GetById(id);
+        if (post is null)
+            return NotFound();
         if (applicationUser.Username != post.Username)
             return Unauthorized();
 
-        _posts.Remove(post);
+        _posts.Delete(id);
         return Ok();
     }
 
@@ -73,12 +77,12 @@ public class PostController : ControllerBase
     [AllowAnonymous]
     public ActionResult<IEnumerable<PostDto>> Get()
     {
-        return Ok(_posts
-            .OrderByDescending(p => p.Id)
-            .Select(p => new PostDto(p, _users.FromHttpContext(HttpContext).Id)));
+        var posts = _posts.GetAll();
+        var postDtos = posts.Select(p => new PostDto(p, _users.FromHttpContext(HttpContext).Id));
+        return Ok(postDtos);
     }
 
-    [HttpPost("{id:int}/Like")]
+    [HttpPost("{id:Guid}/Like")]
     public IActionResult AddLike(Guid id)
     {
         var (post, user) = AssertPostNotFromCurrentUser(id);
@@ -86,7 +90,7 @@ public class PostController : ControllerBase
         return Ok();
     }
 
-    [HttpDelete("{id:int}/Like")]
+    [HttpDelete("{id:Guid}/Like")]
     public IActionResult RemoveLike(Guid id)
     {
         var (post, user) = AssertPostNotFromCurrentUser(id);
@@ -96,41 +100,12 @@ public class PostController : ControllerBase
 
     private (Post, ApplicationUser) AssertPostNotFromCurrentUser(Guid id)
     {
-        var post = _posts.First(p => p.Id == id);
+        var post = _posts.GetById(id);
         var applicationUser = _users.FromHttpContext(HttpContext);
         if (applicationUser.Username == post.Username)
             throw new InvalidOperationException("Action not supported for posts by the user itself");
+
         return (post, applicationUser);
     }
 
-    private static readonly List<Post> _posts = new()
-    {
-        new Post()
-        {
-            Id =Guid.NewGuid(),
-            Username = "hugop",
-            ProfilePicture = "https://i.pravatar.cc/300",
-            Message = "This is the first post on this site, Yay!! :)",
-            LikedUserIds = { Guid.NewGuid(), Guid.NewGuid() }
-        },
-        new Post()
-        {
-            Id =Guid.NewGuid(),
-            Username = "hugop",
-            ProfilePicture = "https://i.pravatar.cc/300",
-            Message = "This is the second post on this site",
-            LikedUserIds = {Guid.NewGuid(), Guid.NewGuid(),Guid.NewGuid() }
-        },
-        new Post()
-        {
-            Id = Guid.NewGuid(),
-            Username = "hugop",
-            ProfilePicture = "https://i.pravatar.cc/300",
-            Message = @"Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam,
-                quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat
-                cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-        },
-    };
 }

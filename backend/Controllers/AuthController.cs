@@ -60,14 +60,14 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public ActionResult<SignupResponse> Signup([FromBody] SignupDto signup)
+    public async Task<ActionResult<SignupResponse>> Signup([FromBody] SignupDto signup)
     {
         if (_users.FindByUsername(signup.Username) is not null)
             return Ok(new SignupResponse(SignupResponseCode.UserNameTaken));
         if (_users.FindByEmail(signup.Email) is not null)
             return Ok(new SignupResponse(SignupResponseCode.EmailTaken));
 
-        _authService.SignupAsync(signup);
+        await _authService.SignupAsync(signup);
         return Ok(new SignupResponse(SignupResponseCode.Ok));
     }
 
