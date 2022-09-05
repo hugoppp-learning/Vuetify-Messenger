@@ -57,14 +57,12 @@
                   Settings
                 </div>
               </v-hover>
-              <router-link style="color: inherit" to="logout">
-                <v-hover v-slot="{ hover }">
-                  <div :style="{ 'background-color': hover? '#f0f0f0' : 'inherit' }"
-                       class="py-3 text-center" @click>
-                    Log out @{{ authStore.currentUser.username }}
-                  </div>
-                </v-hover>
-              </router-link>
+              <v-hover v-slot="{ hover }">
+                <div :style="{ 'background-color': hover? '#f0f0f0' : 'inherit' }"
+                     class="py-3 text-center" @click="confirmLogoutOverlayOpen = true">
+                  Log out @{{ authStore.currentUser.username }}
+                </div>
+              </v-hover>
             </v-container>
           </v-card>
         </v-menu>
@@ -77,6 +75,18 @@
     <template v-else>
       <router-view></router-view>
     </template>
+    <v-dialog content-class="rounded-xl" close-delay="1175" width="300" v-model="confirmLogoutOverlayOpen">
+      <v-card>
+        <v-card-title>Log out?</v-card-title>
+        <v-card-text class="pb-0">
+          You can always log back in at any time.
+        </v-card-text>
+        <v-container class="px-5 pb-5">
+          <v-btn rounded="rounded" block color="red" class="my-2 white--text" @click="logout()">Log out</v-btn>
+          <v-btn rounded="rounded" block color="primary" class="ma-y" @click="confirmLogoutOverlayOpen = false">Cancel</v-btn>
+        </v-container>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -84,6 +94,7 @@
 
 
 import { useAuthStore } from '@/store/authStore'
+import { router } from '@/router'
 
 export default {
   setup () {
@@ -91,7 +102,16 @@ export default {
       authStore: useAuthStore()
     }
   },
+  methods: {
+    logout () {
+      this.confirmLogoutOverlayOpen = false
+      this.authStore.deleteToken()
+      router.push({ path: '/login' })
+      this.authStore.destroyUser()
+    }
+  },
   data: () => ({
+    confirmLogoutOverlayOpen: false,
     links: [
       {
         text: 'Home',

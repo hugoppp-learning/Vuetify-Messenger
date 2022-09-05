@@ -38,20 +38,10 @@ export function createRouter (pinia) {
   router = new VueRouter({
     routes,
   })
-  router.afterEach((to, from) => {
-    if (to.path === '/login') {
-      let auth = useAuthStore(pinia)
-      auth.destroyUser()
-    }
-  })
   router.beforeEach(async (to, from, next) => {
     const allowAnon = ['/login']
     let auth = useAuthStore(pinia)
-    if (to.path === '/logout'){
-      auth.deleteToken();
-      await next({ name: 'login' })
-    }
-    else if (!auth.isAuth && !allowAnon.includes(to.path)) {
+    if (!auth.isAuth && !allowAnon.includes(to.path)) {
       auth.returnUrl = to.path
       console.log(`user not logged in, redirecting from '` + to.path + `'to /login`)
       next({ name: 'login' })

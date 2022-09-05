@@ -13,11 +13,11 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     deleteToken () {
       localStorage.removeItem('user');
-      console.log("user token deleted")
       this.currentUser.token = null
+      console.log("user token deleted")
     },
     destroyUser () {
-      this.currentUser.token = null
+      this.currentUser = {}
       console.log("user destroyed")
     },
     async login (username, password) {
