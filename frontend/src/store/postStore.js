@@ -14,25 +14,35 @@ export const usePostStore = defineStore('post', {
       this.posts = response.data
     },
     async createPost (message) {
-      const response = await axios.post(resource_uri, { message });
-      const post = response.data;
+      const response = await axios.post(resource_uri, { message })
+      const post = response.data
       this.posts.unshift(post)
       return post
     },
     async likePost (post) {
       console.log(post)
-      await axios.post(`${resource_uri}/${post.id}/like`);
       post.likes++
-      post.liked = true;
+      post.liked = true
+      try {
+        await axios.post(`${resource_uri}/${post.id}/like`)
+      } catch (e) {
+        post.likes++
+        post.liked = false
+      }
     },
     async unlikePost (post) {
-      await axios.delete(`${resource_uri}/${post.id}/like`);
       post.likes--
-      post.liked = false;
+      post.liked = false
+      try {
+        await axios.delete(`${resource_uri}/${post.id}/like`)
+      } catch (e) {
+        post.likes++
+        post.liked = true
+      }
     },
     async deletePost (id) {
+      await axios.delete(`${resource_uri}/${id}`)
       this.posts = this.posts.filter(p => p.id !== id)
-      await axios.delete(`${resource_uri}/${id}`);
     }
   },
 
