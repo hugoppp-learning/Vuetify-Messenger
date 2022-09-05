@@ -35,16 +35,39 @@
           <router-link to="/profile">@{{ authStore.currentUser.username }}</router-link>
         </v-container>
 
-        <router-link to="/profile">
-          <v-avatar
-            class="hidden-sm-and-down"
-            color="grey darken-1 shrink"
-            size="32"
-          >
-            <img :src="loggedInUser.profilePicture" alt="">
+        <v-menu content-class="rounded-xl" offset-y>
+          <template v-slot:activator="{on, attrs}">
 
-          </v-avatar>
-        </router-link>
+            <v-avatar
+              v-on="on"
+              v-bind="attrs"
+              class="hidden-sm-and-down"
+              color="grey darken-1 shrink"
+              size="32"
+            >
+              <img :src="authStore.currentUser.profilePicture" alt="">
+
+            </v-avatar>
+          </template>
+          <v-card width="200">
+            <v-container class="py-1 px-0">
+              <v-hover v-slot="{ hover }">
+                <div :style="{ 'background-color': hover? '#f0f0f0' : 'inherit' }"
+                     class="py-3 text-center" @click>
+                  Settings
+                </div>
+              </v-hover>
+              <router-link style="color: inherit" to="logout">
+                <v-hover v-slot="{ hover }">
+                  <div :style="{ 'background-color': hover? '#f0f0f0' : 'inherit' }"
+                       class="py-3 text-center" @click>
+                    Log out @{{ authStore.currentUser.username }}
+                  </div>
+                </v-hover>
+              </router-link>
+            </v-container>
+          </v-card>
+        </v-menu>
       </v-app-bar>
 
       <v-main class="grey lighten-3">
@@ -69,7 +92,6 @@ export default {
     }
   },
   data: () => ({
-    loggedInUser: { profilePicture: '' },
     links: [
       {
         text: 'Home',
@@ -97,6 +119,7 @@ export default {
   text-align: right;
   text-overflow: ellipsis
 }
+
 
 a {
   text-decoration: none;

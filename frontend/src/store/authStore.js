@@ -11,6 +11,15 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
+    deleteToken () {
+      localStorage.removeItem('user');
+      console.log("user token deleted")
+      this.currentUser.token = null
+    },
+    destroyUser () {
+      this.currentUser.token = null
+      console.log("user destroyed")
+    },
     async login (username, password) {
       const response = await axios.post(resource_uri + 'auth', {
         username,
