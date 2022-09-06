@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { useAuthStore } from '@/store/authStore'
 
 const resource_uri = 'http://localhost:5277/Post'
 
@@ -46,5 +47,7 @@ export const usePostStore = defineStore('post', {
     }
   },
 
-  getters: {}
+  getters: {
+    ownPosts: (state) => state.posts.filter(p => p.username === useAuthStore().currentUser.username),
+  }
 })
